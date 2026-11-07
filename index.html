@@ -91,6 +91,11 @@ h2{font-family:var(--titre);font-size:1.18rem;font-weight:600;margin:0 0 12px}
 .sug-item:hover,.sug-item:focus-visible{background:var(--fond);outline:none}
 .bouton:disabled{opacity:.6;cursor:default}
 #pos-etat:empty,#ici-note:empty{display:none}
+.resume{margin:0 0 14px;padding:10px 14px;background:var(--carte);border:1px solid var(--trait);border-radius:4px}
+.resume[hidden],#bloc-choix[hidden]{display:none}
+.resume .r1{font-weight:600}
+.resume .r2{font-size:.82rem;color:var(--gris);margin:2px 0 6px}
+.proche{font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--bleu);margin-left:6px;font-weight:600}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .intro-pos{margin:0 0 10px;font-size:.95rem}
 .autre{margin:0 0 12px}
@@ -125,6 +130,7 @@ h2{font-family:var(--titre);font-size:1.18rem;font-weight:600;margin:0 0 12px}
     <div class="invit-btn"><button type="button" class="bouton" id="invit-oui">Autoriser la localisation</button><button type="button" class="bouton off" id="invit-non">Non merci</button></div>
   </div>
   <div id="aide-loc" class="invit" hidden></div>
+  <div id="bloc-choix">
   <p class="intro-pos"><b>Près de chez vous ?</b> Indiquez votre adresse ou votre position : les promenades sont classées de la plus proche à la plus éloignée.</p>
   <div class="localiser">
     <div class="champ adr"><label for="f-adr" class="sr">Votre adresse</label>
@@ -137,6 +143,8 @@ h2{font-family:var(--titre);font-size:1.18rem;font-weight:600;margin:0 0 12px}
     <div class="filtres"><div class="champ"><label for="f-ici" class="sr">Arrondissement</label>
     <select id="f-ici"><option value="">Choisir mon arrondissement</option></select></div></div>
   </details>
+  </div>
+  <div id="pos-resume" class="resume" hidden></div>
   <p class="meta" id="ici-note" style="margin:0 0 12px"></p>
   </div>
   <div class="liste" id="liste-boucles"></div>
@@ -228,20 +236,24 @@ h2{font-family:var(--titre);font-size:1.18rem;font-weight:600;margin:0 0 12px}
     var t=d.toFixed(1).replace('.',',')+' km '+deQui();
     return d<=25?t+' · environ '+duree(d)+' à pied':t;
   }
-  function noteIci(o){
-    if(!o)return '';
-    var t='Classées de la plus proche à la plus éloignée (distance à vol d’oiseau jusqu’au départ, durée à pied estimée).';
-    if(!pos)t+=' Pour plus de précision, saisissez une adresse.';
-    return t;
+  function noteIci(o){return '';}
+  function majEtat(msg){$('pos-etat').textContent=msg||'';}
+  function reinitPos(){
+    pos=null;ici='';$('f-ici').value='';$('f-adr').value='';$('det-arr').open=false;
+    try{localStorage.removeItem(CLE_ADR);localStorage.setItem(CLE_ICI,'');}catch(e){}
+    majEtat();rendB();
+    try{$('f-adr').focus();}catch(e){}
   }
-  function majEtat(msg){
-    var e=$('pos-etat');e.textContent='';
-    if(msg){e.textContent=msg;return;}
-    if(!pos)return;
-    e.appendChild(document.createTextNode(pos.src==='gps'?'Position utilisée : votre position actuelle (elle n’est pas enregistrée). ':'Adresse utilisée : '+pos.label+'. '));
-    var x=document.createElement('button');x.type='button';x.className='retour';x.style.marginBottom='0';x.textContent='Effacer';
-    x.addEventListener('click',function(){$('f-adr').value='';setPos(null);});
-    e.appendChild(x);
+  function majZone(){
+    var o=origine(),r=$('pos-resume');r.textContent='';
+    $('bloc-choix').hidden=!!o;
+    if(!o){r.hidden=true;return;}
+    var l1=pos?(pos.src==='gps'?'Autour de votre position (non enregistrée)':'Autour de : '+pos.label):'Autour du centre du '+ordi(ici)+' arrondissement';
+    var a1=document.createElement('div');a1.className='r1';a1.textContent=l1;
+    var a2=document.createElement('div');a2.className='r2';a2.textContent='Promenades classées de la plus proche à la plus éloignée (distances à vol d’oiseau).';
+    var x=document.createElement('button');x.type='button';x.className='retour';x.style.marginBottom='0';x.textContent='Modifier';
+    x.addEventListener('click',reinitPos);
+    r.appendChild(a1);r.appendChild(a2);r.appendChild(x);r.hidden=false;
   }
   function setPos(p){
     pos=p;$('invit-loc').hidden=true;$('aide-loc').hidden=true;
@@ -253,15 +265,16 @@ h2{font-family:var(--titre);font-size:1.18rem;font-weight:600;margin:0 0 12px}
   function rendB(){
     var c=$('liste-boucles');c.textContent='';
     $('zone-pos').hidden=false;
+    majZone();
     var o=origine();
     var liste=B.map(function(b){return {b:b,d:o?km(o,L[b.e[0]]):null};});
     if(o)liste.sort(function(x,y){return x.d-y.d;});
     $('ici-note').textContent=noteIci(o);
-    liste.forEach(function(x){
+    liste.forEach(function(x,idx){
       var b=x.b;
       var f=b.e.filter(function(i){return vus[L[i].id];}).length;
       var meta=b.e.length+' églises · '+b.km.toFixed(1).replace('.',',')+' km<br>Départ : '+esc(L[b.e[0]].n||'église sans nom')+(x.d!=null?'<br>À '+distTxt(x.d):'');
-      c.appendChild(item(f===b.e.length,'Promenade '+b.id,meta,
+      c.appendChild(item(f===b.e.length,'Promenade '+b.id+(o&&idx===0?' <span class="proche">La plus proche</span>':''),meta,
         '~'+b.pas.toLocaleString('fr-FR')+' pas<br>'+f+'/'+b.e.length+' vues',function(){ouvreB(b);}));
     });
     maj();
