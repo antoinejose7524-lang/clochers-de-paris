@@ -253,7 +253,7 @@ h2{font-family:var(--titre);font-size:1.18rem;font-weight:600;margin:0 0 12px}
     f.appendChild(q);
     var li=document.createElement('div');li.className='liens';
     function lien(t,href){var x=document.createElement('a');x.textContent=t;x.href=href;x.target='_blank';x.rel='noopener';li.appendChild(x);}
-    lien('Y aller à pied (Google Maps)','https://www.google.com/maps/dir/?api=1&travelmode=walking&destination='+gm(l));
+    lien('S’y rendre (Google Maps)','https://www.google.com/maps/dir/?api=1&destination='+gm(l));
     lien('Voir sur Google Maps','https://www.google.com/maps/search/?api=1&query='+gm(l));
     if(l.pp)lien('Page du diocèse et horaires de messes',l.pp);
     if(l.fa)lien('Histoire et art (Art, Culture et Foi)',l.fa);
