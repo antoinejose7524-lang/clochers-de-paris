@@ -91,6 +91,11 @@ h2{font-family:var(--titre);font-size:1.18rem;font-weight:600;margin:0 0 12px}
 .sug-item:hover,.sug-item:focus-visible{background:var(--fond);outline:none}
 .bouton:disabled{opacity:.6;cursor:default}
 #pos-etat:empty{display:none}
+.invit{background:var(--carte);border:1px solid var(--trait);border-radius:4px;padding:12px 14px;margin-bottom:12px}
+.invit[hidden]{display:none}
+.invit p{margin:0 0 10px;font-size:.92rem}
+.invit-btn{display:flex;gap:10px;flex-wrap:wrap}
+.invit .bouton{width:auto;margin-top:0;padding:9px 14px}
 </style>
 </head>
 <body>
@@ -111,6 +116,11 @@ h2{font-family:var(--titre);font-size:1.18rem;font-weight:600;margin:0 0 12px}
 
 <div id="vue-boucles" role="tabpanel">
   <div id="zone-pos">
+  <div id="invit-loc" class="invit" hidden>
+    <p>Pour classer les promenades autour de vous, le site peut utiliser la position de votre appareil. Elle reste sur votre appareil : elle n’est ni envoyée ni enregistrée.</p>
+    <div class="invit-btn"><button type="button" class="bouton" id="invit-oui">Autoriser la localisation</button><button type="button" class="bouton off" id="invit-non">Non merci</button></div>
+  </div>
+  <div id="aide-loc" class="invit" hidden></div>
   <div class="localiser">
     <div class="champ adr"><label for="f-adr">Où êtes-vous ? Saisissez une adresse</label>
       <input type="search" id="f-adr" placeholder="ex. 6 parvis Notre-Dame" autocomplete="off" aria-controls="sug-adr"></div>
@@ -227,7 +237,7 @@ h2{font-family:var(--titre);font-size:1.18rem;font-weight:600;margin:0 0 12px}
     e.appendChild(x);
   }
   function setPos(p){
-    pos=p;
+    pos=p;$('invit-loc').hidden=true;$('aide-loc').hidden=true;
     try{if(p&&p.src==='adr')localStorage.setItem(CLE_ADR,JSON.stringify({lat:p.lat,lon:p.lon,label:p.label}));else localStorage.removeItem(CLE_ADR);}catch(e){}
     if(p){ici='';$('f-ici').value='';try{localStorage.setItem(CLE_ICI,'');}catch(e){}}
     majEtat();rendB();
@@ -286,33 +296,79 @@ h2{font-family:var(--titre);font-size:1.18rem;font-weight:600;margin:0 0 12px}
   $('f-ici').value=ici;if($('f-ici').value!==ici){ici='';$('f-ici').value='';}
   $('f-ici').addEventListener('change',function(){ici=$('f-ici').value;try{localStorage.setItem(CLE_ICI,ici);}catch(e){}
     if(ici&&pos){pos=null;$('f-adr').value='';try{localStorage.removeItem(CLE_ADR);}catch(e){}}
+    if(ici)$('invit-loc').hidden=true;
     majEtat();rendB();});
   if(pos)$('f-adr').value=pos.label;
   majEtat();
-  // bouton « Utiliser ma position » : raccourci facultatif, l'adresse reste le chemin principal
-  $('b-loc').addEventListener('click',function(){
-    var AIDE=' Le plus simple\u00a0: saisissez une adresse ci-dessus, ou choisissez un arrondissement.';
-    if(!navigator.geolocation){majEtat('La localisation n\u2019est pas disponible dans ce navigateur.'+AIDE);return;}
-    var bt=$('b-loc'),txt=bt.textContent,fini=false,garde2=null;
-    function termine(msg){if(fini)return;fini=true;clearTimeout(garde2);bt.disabled=false;bt.textContent=txt;if(msg)majEtat(msg);}
-    bt.disabled=true;bt.textContent='Recherche en cours\u2026';
-    majEtat('Recherche de votre position. Si votre t\u00e9l\u00e9phone demande l\u2019autorisation, acceptez.');
-    garde2=setTimeout(function(){termine('Pas de r\u00e9ponse du t\u00e9l\u00e9phone.'+AIDE);},15000);
+  // position : détection automatique de l'état, invitation, aide pas à pas
+  var CLE_NON='clochers-loc-non', TXT_LOC='Ou utiliser ma position';
+  function dejaRefuse(){try{return localStorage.getItem(CLE_NON)==='1';}catch(e){return false;}}
+  function etatPerm(cb){
+    if(navigator.permissions&&navigator.permissions.query){
+      navigator.permissions.query({name:'geolocation'}).then(function(p){cb(p.state);},function(){cb('inconnu');});
+    }else cb('inconnu');
+  }
+  function plateforme(){
+    var u=navigator.userAgent||'';
+    if(/android/i.test(u))return 'android';
+    if(/iphone|ipad|ipod/i.test(u))return 'ios';
+    return 'autre';
+  }
+  function montreAide(){
+    var z=$('aide-loc');z.textContent='';
+    var t=document.createElement('p');t.style.fontWeight='600';t.textContent='La localisation est bloquée. Pour l’autoriser :';z.appendChild(t);
+    var pf=plateforme(),et=[];
+    et.push('Touchez l’icône à gauche de l’adresse du site (cadenas ou réglages), ouvrez « Autorisations » ou « Paramètres du site », puis mettez « Position » sur « Autoriser ».');
+    if(pf==='android')et.push('Si cela ne suffit pas : Paramètres du téléphone > Applications > votre navigateur > Autorisations > Position > « Autoriser uniquement si l’application est active ». Vérifiez aussi que la localisation du téléphone est activée.');
+    else if(pf==='ios')et.push('Si cela ne suffit pas : Réglages > Confidentialité et sécurité > Service de localisation (activé), puis votre navigateur sur « Lorsque l’app est active ».');
+    et.push('Revenez ici et touchez « Réessayer », ou saisissez simplement une adresse.');
+    var ol=document.createElement('ol');ol.style.cssText='margin:0 0 10px;padding-left:20px;font-size:.92rem';
+    et.forEach(function(x){var li=document.createElement('li');li.textContent=x;li.style.marginBottom='4px';ol.appendChild(li);});
+    z.appendChild(ol);
+    var bs=document.createElement('div');bs.className='invit-btn';
+    var r=document.createElement('button');r.type='button';r.className='bouton';r.textContent='Réessayer';
+    r.addEventListener('click',function(){demandePosition(false);});
+    var f=document.createElement('button');f.type='button';f.className='bouton off';f.textContent='Fermer';
+    f.addEventListener('click',function(){z.hidden=true;});
+    bs.appendChild(r);bs.appendChild(f);z.appendChild(bs);z.hidden=false;
+  }
+  function demandePosition(silencieux){
+    var AIDE=' Le plus simple : saisissez une adresse ci-dessus, ou choisissez un arrondissement.';
+    if(!navigator.geolocation){if(!silencieux)majEtat('La localisation n’est pas disponible dans ce navigateur.'+AIDE);return;}
+    var bt=$('b-loc'),fini=false,garde2=null;
+    $('invit-loc').hidden=true;$('aide-loc').hidden=true;
+    function termine(msg){if(fini)return;fini=true;clearTimeout(garde2);bt.disabled=false;bt.textContent=TXT_LOC;if(msg&&!silencieux)majEtat(msg);}
+    function bloque(){if(fini)return;termine('La localisation est bloquée pour ce site ou pour le navigateur.');if(!silencieux)montreAide();}
+    bt.disabled=true;bt.textContent='Recherche en cours…';
+    if(!silencieux)majEtat('Recherche de votre position. Si votre téléphone demande l’autorisation, acceptez.');
+    garde2=setTimeout(function(){termine('Pas de réponse du téléphone.'+AIDE);},15000);
     function lance(){
       navigator.geolocation.getCurrentPosition(function(r){
         if(fini)return;
-        termine();$('f-adr').value='';
+        var ok=!(silencieux&&($('zone-pos').hidden||pos||ici));
+        termine();
+        if(!ok)return;
+        $('f-adr').value='';
         setPos({lat:r.coords.latitude,lon:r.coords.longitude,label:'',src:'gps'});
       },function(err){
-        termine(err&&err.code===1?'La localisation est bloqu\u00e9e pour ce site ou pour le navigateur.'+AIDE:'Position introuvable.'+AIDE);
+        if(err&&err.code===1)bloque();else termine('Position introuvable.'+AIDE);
       },{enableHighAccuracy:false,timeout:12000,maximumAge:60000});
     }
-    if(navigator.permissions&&navigator.permissions.query){
-      navigator.permissions.query({name:'geolocation'}).then(function(p){
-        if(p.state==='denied')termine('La localisation est bloqu\u00e9e pour ce site ou pour le navigateur.'+AIDE);else lance();
-      },function(){lance();});
-    }else lance();
-  });
+    etatPerm(function(st){if(st==='denied')bloque();else lance();});
+  }
+  $('b-loc').addEventListener('click',function(){demandePosition(false);});
+  $('invit-oui').addEventListener('click',function(){demandePosition(false);});
+  $('invit-non').addEventListener('click',function(){$('invit-loc').hidden=true;try{localStorage.setItem(CLE_NON,'1');}catch(e){}});
+  // à l'ouverture : si la localisation est déjà autorisée, on l'utilise sans rien demander ;
+  // sinon on propose une fois, avec une explication, avant la fenêtre du navigateur
+  (function(){
+    if(!navigator.geolocation||pos||ici)return;
+    etatPerm(function(st){
+      if(pos||ici)return;
+      if(st==='granted')demandePosition(true);
+      else if((st==='prompt'||st==='inconnu')&&!dejaRefuse())$('invit-loc').hidden=false;
+    });
+  })();
   // saisie d'adresse (API Base Adresse Nationale, gratuite et sans clé)
   var tSug=null,nSug=0;
   function ferme(){var z=$('sug-adr');z.hidden=true;z.textContent='';}
