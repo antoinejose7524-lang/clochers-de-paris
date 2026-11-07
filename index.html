@@ -80,6 +80,17 @@ h2{font-family:var(--titre);font-size:1.18rem;font-weight:600;margin:0 0 12px}
 .vide{color:var(--gris);padding:18px 0}
 .bouton.lien{display:block;text-align:center;text-decoration:none;margin:0 0 16px}
 .note{margin-top:28px;font-size:.82rem;color:var(--gris);border-top:1px solid var(--trait);padding-top:14px}
+/* Position de départ (étape 1) */
+.localiser{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin-bottom:8px}
+.localiser .bouton{width:auto;margin-top:0;padding:9px 14px;white-space:nowrap}
+.localiser .adr{flex:1 1 220px}
+.localiser input{width:100%}
+.sug{flex-basis:100%;display:grid;gap:2px;border:1px solid var(--trait);background:var(--carte);border-radius:4px;padding:4px}
+.sug[hidden]{display:none}
+.sug-item{font:inherit;text-align:left;background:none;border:0;color:var(--encre);padding:9px 8px;cursor:pointer;border-radius:3px}
+.sug-item:hover,.sug-item:focus-visible{background:var(--fond);outline:none}
+.bouton:disabled{opacity:.6;cursor:default}
+#pos-etat:empty{display:none}
 </style>
 </head>
 <body>
@@ -99,9 +110,18 @@ h2{font-family:var(--titre);font-size:1.18rem;font-weight:600;margin:0 0 12px}
 </div>
 
 <div id="vue-boucles" role="tabpanel">
-  <div class="filtres"><div class="champ"><label for="f-ici">Je suis dans le</label>
+  <div id="zone-pos">
+  <div class="localiser">
+    <button type="button" class="bouton" id="b-loc">Me localiser</button>
+    <div class="champ adr"><label for="f-adr">Ou saisir une adresse</label>
+      <input type="search" id="f-adr" placeholder="ex. 6 parvis Notre-Dame" autocomplete="off" aria-controls="sug-adr"></div>
+    <div id="sug-adr" class="sug" hidden></div>
+  </div>
+  <p class="meta" id="pos-etat" role="status" style="margin:0 0 10px"></p>
+  <div class="filtres"><div class="champ"><label for="f-ici">Ou choisir mon arrondissement</label>
     <select id="f-ici"><option value="">Choisir mon arrondissement</option></select></div></div>
   <p class="meta" id="ici-note" style="margin:0 0 12px"></p>
+  </div>
   <div class="liste" id="liste-boucles"></div>
 </div>
 
@@ -134,6 +154,10 @@ h2{font-family:var(--titre);font-size:1.18rem;font-weight:600;margin:0 0 12px}
   function garde(){try{localStorage.setItem(CLE,JSON.stringify(vus));}catch(e){}}
   var CLE_ICI='clochers-ici', ici='';
   try{ici=localStorage.getItem(CLE_ICI)||'';}catch(e){ici='';}
+  var CLE_ADR='clochers-adresse', pos=null;
+  try{var pa=JSON.parse(localStorage.getItem(CLE_ADR)||'null');
+    if(pa&&typeof pa.lat==='number'&&typeof pa.lon==='number'&&pa.label)pos={lat:pa.lat,lon:pa.lon,label:String(pa.label),src:'adr'};}catch(e){pos=null;}
+  if(pos)ici='';
   var cen={};
   (function(){var t={};L.forEach(function(l){if(!l.a)return;var o=t[l.a]||(t[l.a]={la:0,lo:0,n:0});o.la+=l.lat;o.lo+=l.lon;o.n++;});
     Object.keys(t).forEach(function(a){cen[a]={lat:t[a].la/t[a].n,lon:t[a].lo/t[a].n};});})();
@@ -167,23 +191,68 @@ h2{font-family:var(--titre);font-size:1.18rem;font-weight:600;margin:0 0 12px}
   var ongletActif='b';
   $('o-prom').addEventListener('click',function(){ongletActif='b';$('o-prom').setAttribute('aria-selected','true');$('o-ann').setAttribute('aria-selected','false');rendB();vue('b');});
   $('o-ann').addEventListener('click',function(){ongletActif='a';$('o-ann').setAttribute('aria-selected','true');$('o-prom').setAttribute('aria-selected','false');rendA();vue('a');});
+  function esc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  function origine(){
+    if(pos)return {lat:pos.lat,lon:pos.lon};
+    if(ici&&cen[ici])return cen[ici];
+    return null;
+  }
+  function deQui(){
+    if(pos&&pos.src==='gps')return 'de vous';
+    if(pos)return 'de l’adresse choisie';
+    return 'du centre du '+ordi(ici);
+  }
+  function duree(d){
+    var m=Math.max(5,Math.round(d*1.3/4.8*60/5)*5);
+    if(m<60)return m+' min';
+    var h=Math.floor(m/60),r=m%60;return h+' h'+(r?' '+(r<10?'0':'')+r:'');
+  }
+  function distTxt(d){
+    var t=d.toFixed(1).replace('.',',')+' km '+deQui();
+    return d<=25?t+' · environ '+duree(d)+' à pied':t;
+  }
+  function noteIci(o){
+    if(!o)return 'Indiquez où vous êtes (bouton « Me localiser », adresse ou arrondissement) pour classer les promenades de la plus proche à la plus éloignée.';
+    var t='Classées de la plus proche à la plus éloignée. Distance à vol d’oiseau '+(pos?(pos.src==='gps'?'depuis votre position':'depuis l’adresse choisie'):'depuis le centre de l’arrondissement')+' jusqu’à la première église de chaque promenade ; la durée à pied est une estimation.';
+    if(!pos)t+=' Pour plus de précision, utilisez « Me localiser » ou saisissez une adresse.';
+    return t;
+  }
+  function majEtat(msg){
+    var e=$('pos-etat');e.textContent='';
+    if(msg){e.textContent=msg;return;}
+    if(!pos)return;
+    e.appendChild(document.createTextNode(pos.src==='gps'?'Position utilisée : votre position actuelle (elle n’est pas enregistrée). ':'Adresse utilisée : '+pos.label+'. '));
+    var x=document.createElement('button');x.type='button';x.className='retour';x.style.marginBottom='0';x.textContent='Effacer';
+    x.addEventListener('click',function(){$('f-adr').value='';setPos(null);});
+    e.appendChild(x);
+  }
+  function setPos(p){
+    pos=p;
+    try{if(p&&p.src==='adr')localStorage.setItem(CLE_ADR,JSON.stringify({lat:p.lat,lon:p.lon,label:p.label}));else localStorage.removeItem(CLE_ADR);}catch(e){}
+    if(p){ici='';$('f-ici').value='';try{localStorage.setItem(CLE_ICI,'');}catch(e){}}
+    majEtat();rendB();
+  }
   // promenades
   function rendB(){
     var c=$('liste-boucles');c.textContent='';
-    var liste=B.map(function(b){return {b:b,d:(ici&&cen[ici])?km(cen[ici],L[b.e[0]]):null};});
-    if(ici&&cen[ici])liste.sort(function(x,y){return x.d-y.d;});
-    $('ici-note').textContent=(ici&&cen[ici])?'Classées de la plus proche à la plus éloignée. Distance à vol d\u2019oiseau depuis le centre de l\u2019arrondissement jusqu\u2019à la première église.':'';
+    $('zone-pos').hidden=false;
+    var o=origine();
+    var liste=B.map(function(b){return {b:b,d:o?km(o,L[b.e[0]]):null};});
+    if(o)liste.sort(function(x,y){return x.d-y.d;});
+    $('ici-note').textContent=noteIci(o);
     liste.forEach(function(x){
       var b=x.b;
       var f=b.e.filter(function(i){return vus[L[i].id];}).length;
-      c.appendChild(item(f===b.e.length,'Promenade '+b.id,b.e.length+' églises · '+b.km.toFixed(1).replace('.',',')+' km',
-        '~'+b.pas.toLocaleString('fr-FR')+' pas<br>'+f+'/'+b.e.length+' vues'+(x.d!=null?'<br>départ à '+x.d.toFixed(1).replace('.',',')+' km':''),function(){ouvreB(b);}));
+      var meta=b.e.length+' églises · '+b.km.toFixed(1).replace('.',',')+' km<br>Départ : '+esc(L[b.e[0]].n||'église sans nom')+(x.d!=null?'<br>À '+distTxt(x.d):'');
+      c.appendChild(item(f===b.e.length,'Promenade '+b.id,meta,
+        '~'+b.pas.toLocaleString('fr-FR')+' pas<br>'+f+'/'+b.e.length+' vues',function(){ouvreB(b);}));
     });
     maj();
   }
   var bCourante=null, retourVers='b';
   function ouvreB(b){
     bCourante=b;
+    $('zone-pos').hidden=true;
     var c=$('liste-boucles');c.textContent='';
     var r=document.createElement('button');r.type='button';r.className='retour';
     r.innerHTML='&larr; Toutes les promenades';
@@ -192,7 +261,10 @@ h2{font-family:var(--titre);font-size:1.18rem;font-weight:600;margin:0 0 12px}
     var h=document.createElement('h2');h.textContent='Promenade '+b.id;c.appendChild(h);
     var p=document.createElement('p');p.className='sous';
     p.textContent=b.e.length+' églises · '+b.km.toFixed(1).replace('.',',')+' km · environ '+b.pas.toLocaleString('fr-FR')+' pas';
-    p.style.marginBottom='14px';c.appendChild(p);
+    p.style.marginBottom='6px';c.appendChild(p);
+    var o2=origine(),pd=document.createElement('p');pd.className='sous';pd.style.marginBottom='14px';
+    pd.textContent='Départ : '+(L[b.e[0]].n||'église sans nom')+(L[b.e[0]].adr?', '+L[b.e[0]].adr:'')+(o2?' — à '+distTxt(km(o2,L[b.e[0]])):'');
+    c.appendChild(pd);
     var g=document.createElement('a');g.className='bouton lien';g.target='_blank';g.rel='noopener';
     var pts=b.e.map(function(i){return gm(L[i]);});
     g.href='https://www.google.com/maps/dir/?api=1&travelmode=walking&origin='+pts[0]+'&destination='+pts[pts.length-1]+
@@ -212,7 +284,56 @@ h2{font-family:var(--titre);font-size:1.18rem;font-weight:600;margin:0 0 12px}
   arrs.forEach(function(a){var o=document.createElement('option');o.value=a;o.textContent=(parseInt(a.slice(3),10))+(parseInt(a.slice(3),10)===1?'er':'e')+' arrondissement';$('f-arr').appendChild(o);});
   arrs.forEach(function(a){var o=document.createElement('option');o.value=a;o.textContent=(a.slice(3).replace(/^0/,'')==='1'?'1er':a.slice(3).replace(/^0/,'')+'e')+' arrondissement';$('f-ici').appendChild(o);});
   $('f-ici').value=ici;if($('f-ici').value!==ici){ici='';$('f-ici').value='';}
-  $('f-ici').addEventListener('change',function(){ici=$('f-ici').value;try{localStorage.setItem(CLE_ICI,ici);}catch(e){}rendB();});
+  $('f-ici').addEventListener('change',function(){ici=$('f-ici').value;try{localStorage.setItem(CLE_ICI,ici);}catch(e){}
+    if(ici&&pos){pos=null;$('f-adr').value='';try{localStorage.removeItem(CLE_ADR);}catch(e){}}
+    majEtat();rendB();});
+  if(pos)$('f-adr').value=pos.label;
+  majEtat();
+  // bouton « Me localiser »
+  $('b-loc').addEventListener('click',function(){
+    if(!navigator.geolocation){majEtat('La localisation n’est pas disponible sur cet appareil. Saisissez une adresse ou choisissez un arrondissement.');return;}
+    var bt=$('b-loc');bt.disabled=true;majEtat('Recherche de votre position…');
+    navigator.geolocation.getCurrentPosition(function(r){
+      bt.disabled=false;$('f-adr').value='';
+      setPos({lat:r.coords.latitude,lon:r.coords.longitude,label:'',src:'gps'});
+    },function(err){
+      bt.disabled=false;
+      majEtat(err&&err.code===1?'Localisation refusée. Autorisez-la dans votre navigateur, ou saisissez une adresse, ou choisissez un arrondissement.':'Position introuvable. Saisissez une adresse ou choisissez un arrondissement.');
+    },{enableHighAccuracy:false,timeout:10000,maximumAge:60000});
+  });
+  // saisie d'adresse (API Base Adresse Nationale, gratuite et sans clé)
+  var tSug=null,nSug=0;
+  function ferme(){var z=$('sug-adr');z.hidden=true;z.textContent='';}
+  $('f-adr').addEventListener('input',function(){
+    clearTimeout(tSug);
+    var q=$('f-adr').value.trim();
+    if(q.length<4){ferme();return;}
+    tSug=setTimeout(function(){
+      var n=++nSug;
+      fetch('https://api-adresse.data.gouv.fr/search/?q='+encodeURIComponent(q)+'&limit=10&lat=48.8566&lon=2.3522')
+        .then(function(r){if(!r.ok)throw new Error('http');return r.json();})
+        .then(function(j){
+          if(n!==nSug)return;
+          var z=$('sug-adr');z.textContent='';
+          var fs=(j.features||[]).filter(function(f){return f.properties&&String(f.properties.postcode||'').indexOf('75')===0&&f.geometry&&f.geometry.coordinates;}).slice(0,6);
+          if(!fs.length){var v=document.createElement('p');v.className='meta';v.style.margin='6px 8px';v.textContent='Aucune adresse trouvée à Paris. Précisez la rue et le numéro.';z.appendChild(v);z.hidden=false;return;}
+          fs.forEach(function(f){
+            var b=document.createElement('button');b.type='button';b.className='sug-item';b.textContent=f.properties.label;
+            b.addEventListener('click',function(){
+              var cc=f.geometry.coordinates;
+              $('f-adr').value=f.properties.label;ferme();
+              setPos({lat:cc[1],lon:cc[0],label:f.properties.label,src:'adr'});
+            });
+            z.appendChild(b);});
+          z.hidden=false;
+        })
+        .catch(function(){if(n!==nSug)return;majEtat('Recherche d’adresse indisponible (connexion ?). Utilisez « Me localiser » ou choisissez un arrondissement.');});
+    },300);
+  });
+  $('f-adr').addEventListener('keydown',function(e){
+    if(e.key==='Escape')ferme();
+    if(e.key==='Enter'){var f=document.querySelector('#sug-adr .sug-item');if(f){e.preventDefault();f.click();}}
+  });
   function ordi(a){var n=parseInt(a.slice(3),10);return n+(n===1?'er':'e');}
   function sansAccent(s){return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();}
   function rendA(){
