@@ -83,7 +83,7 @@ h2{font-family:var(--titre);font-size:1.18rem;font-weight:600;margin:0 0 12px}
 /* Position de départ (étape 1) */
 .localiser{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin-bottom:8px}
 .localiser .bouton{width:auto;margin-top:0;padding:9px 14px;white-space:nowrap}
-.localiser .adr{flex:1 1 220px}
+.localiser .adr{flex:1 1 100%}
 .localiser input{width:100%}
 .sug{flex-basis:100%;display:grid;gap:2px;border:1px solid var(--trait);background:var(--carte);border-radius:4px;padding:4px}
 .sug[hidden]{display:none}
@@ -112,10 +112,10 @@ h2{font-family:var(--titre);font-size:1.18rem;font-weight:600;margin:0 0 12px}
 <div id="vue-boucles" role="tabpanel">
   <div id="zone-pos">
   <div class="localiser">
-    <button type="button" class="bouton" id="b-loc">Me localiser</button>
-    <div class="champ adr"><label for="f-adr">Ou saisir une adresse</label>
+    <div class="champ adr"><label for="f-adr">Où êtes-vous ? Saisissez une adresse</label>
       <input type="search" id="f-adr" placeholder="ex. 6 parvis Notre-Dame" autocomplete="off" aria-controls="sug-adr"></div>
     <div id="sug-adr" class="sug" hidden></div>
+    <button type="button" class="bouton off" id="b-loc">Ou utiliser ma position</button>
   </div>
   <p class="meta" id="pos-etat" role="status" style="margin:0 0 10px"></p>
   <div class="filtres"><div class="champ"><label for="f-ici">Ou choisir mon arrondissement</label>
@@ -212,9 +212,9 @@ h2{font-family:var(--titre);font-size:1.18rem;font-weight:600;margin:0 0 12px}
     return d<=25?t+' · environ '+duree(d)+' à pied':t;
   }
   function noteIci(o){
-    if(!o)return 'Indiquez où vous êtes (bouton « Me localiser », adresse ou arrondissement) pour classer les promenades de la plus proche à la plus éloignée.';
+    if(!o)return 'Indiquez où vous êtes (adresse, position ou arrondissement) pour classer les promenades de la plus proche à la plus éloignée.';
     var t='Classées de la plus proche à la plus éloignée. Distance à vol d’oiseau '+(pos?(pos.src==='gps'?'depuis votre position':'depuis l’adresse choisie'):'depuis le centre de l’arrondissement')+' jusqu’à la première église de chaque promenade ; la durée à pied est une estimation.';
-    if(!pos)t+=' Pour plus de précision, utilisez « Me localiser » ou saisissez une adresse.';
+    if(!pos)t+=' Pour plus de précision, saisissez une adresse ou utilisez votre position.';
     return t;
   }
   function majEtat(msg){
@@ -289,17 +289,29 @@ h2{font-family:var(--titre);font-size:1.18rem;font-weight:600;margin:0 0 12px}
     majEtat();rendB();});
   if(pos)$('f-adr').value=pos.label;
   majEtat();
-  // bouton « Me localiser »
+  // bouton « Utiliser ma position » : raccourci facultatif, l'adresse reste le chemin principal
   $('b-loc').addEventListener('click',function(){
-    if(!navigator.geolocation){majEtat('La localisation n’est pas disponible sur cet appareil. Saisissez une adresse ou choisissez un arrondissement.');return;}
-    var bt=$('b-loc');bt.disabled=true;majEtat('Recherche de votre position…');
-    navigator.geolocation.getCurrentPosition(function(r){
-      bt.disabled=false;$('f-adr').value='';
-      setPos({lat:r.coords.latitude,lon:r.coords.longitude,label:'',src:'gps'});
-    },function(err){
-      bt.disabled=false;
-      majEtat(err&&err.code===1?'Localisation refusée. Autorisez-la dans votre navigateur, ou saisissez une adresse, ou choisissez un arrondissement.':'Position introuvable. Saisissez une adresse ou choisissez un arrondissement.');
-    },{enableHighAccuracy:false,timeout:10000,maximumAge:60000});
+    var AIDE=' Le plus simple\u00a0: saisissez une adresse ci-dessus, ou choisissez un arrondissement.';
+    if(!navigator.geolocation){majEtat('La localisation n\u2019est pas disponible dans ce navigateur.'+AIDE);return;}
+    var bt=$('b-loc'),txt=bt.textContent,fini=false,garde2=null;
+    function termine(msg){if(fini)return;fini=true;clearTimeout(garde2);bt.disabled=false;bt.textContent=txt;if(msg)majEtat(msg);}
+    bt.disabled=true;bt.textContent='Recherche en cours\u2026';
+    majEtat('Recherche de votre position. Si votre t\u00e9l\u00e9phone demande l\u2019autorisation, acceptez.');
+    garde2=setTimeout(function(){termine('Pas de r\u00e9ponse du t\u00e9l\u00e9phone.'+AIDE);},15000);
+    function lance(){
+      navigator.geolocation.getCurrentPosition(function(r){
+        if(fini)return;
+        termine();$('f-adr').value='';
+        setPos({lat:r.coords.latitude,lon:r.coords.longitude,label:'',src:'gps'});
+      },function(err){
+        termine(err&&err.code===1?'La localisation est bloqu\u00e9e pour ce site ou pour le navigateur.'+AIDE:'Position introuvable.'+AIDE);
+      },{enableHighAccuracy:false,timeout:12000,maximumAge:60000});
+    }
+    if(navigator.permissions&&navigator.permissions.query){
+      navigator.permissions.query({name:'geolocation'}).then(function(p){
+        if(p.state==='denied')termine('La localisation est bloqu\u00e9e pour ce site ou pour le navigateur.'+AIDE);else lance();
+      },function(){lance();});
+    }else lance();
   });
   // saisie d'adresse (API Base Adresse Nationale, gratuite et sans clé)
   var tSug=null,nSug=0;
@@ -327,7 +339,7 @@ h2{font-family:var(--titre);font-size:1.18rem;font-weight:600;margin:0 0 12px}
             z.appendChild(b);});
           z.hidden=false;
         })
-        .catch(function(){if(n!==nSug)return;majEtat('Recherche d’adresse indisponible (connexion ?). Utilisez « Me localiser » ou choisissez un arrondissement.');});
+        .catch(function(){if(n!==nSug)return;majEtat('Recherche d’adresse indisponible (connexion ?). Utilisez votre position ou choisissez un arrondissement.');});
     },300);
   });
   $('f-adr').addEventListener('keydown',function(e){
