@@ -111,6 +111,15 @@ h2{font-family:var(--titre);font-size:1.18rem;font-weight:600;margin:0 0 12px}
 .fmt span{display:block;font-size:.78rem;color:var(--gris);margin-top:2px}
 .fmt[aria-pressed=true]{background:var(--bleu);border-color:var(--bleu);color:#fff}
 .fmt[aria-pressed=true] span{color:#fff}
+.carte-p{height:320px;border:1px solid var(--trait);border-radius:4px;margin:0 0 8px;z-index:0}
+.carte-paris{height:230px;border:1px solid var(--trait);border-radius:4px;margin:0 0 6px}
+.titre-c{margin:14px 0 6px;font-size:.95rem;font-weight:600}
+.num-eg{background:var(--bleu);color:#fff;border:2px solid #fff;border-radius:50%;font:600 13px/24px var(--texte);text-align:center;width:28px;height:28px;box-shadow:0 1px 4px rgba(0,0,0,.4)}
+.num-eg.depart{background:var(--or)}
+.num-eg.petit{width:22px;height:22px;font-size:11px;line-height:18px}
+.pt-gris{width:7px;height:7px;border-radius:50%;background:#8a8f9c;opacity:.7}
+.moi-p{background:#d62828;border:3px solid #fff;border-radius:50%;width:16px;height:16px;box-shadow:0 0 0 2px #d62828}
+.legende-c{margin:0 0 14px;font-size:.82rem;color:var(--gris)}
 </style>
 </head>
 <body>
@@ -391,12 +400,75 @@ h2{font-family:var(--titre);font-size:1.18rem;font-weight:600;margin:0 0 12px}
     g.href='https://www.google.com/maps/dir/?api=1&travelmode=walking&origin='+pts[0]+'&destination='+pts[0]+
       (pts.length>1?'&waypoints='+pts.slice(1).join('%7C'):'');
     g.textContent='Ouvrir tout le parcours dans Google Maps';c.appendChild(g);
+    var t1=document.createElement('p');t1.className='titre-c';t1.textContent='Où c’est dans Paris';c.appendChild(t1);
+    var cp=document.createElement('div');cp.className='carte-paris';cp.id='carte-paris';c.appendChild(cp);
+    var t2=document.createElement('p');t2.className='titre-c';t2.textContent='Le parcours, rue par rue';c.appendChild(t2);
+    var cd=document.createElement('div');cd.className='carte-p';cd.id='carte-p';c.appendChild(cd);
+    var lg2=document.createElement('p');lg2.className='legende-c';
+    lg2.textContent='Les numéros donnent l’ordre de visite (1 = départ, en doré). Sur la carte de Paris, les points gris sont les autres paroisses et le cadre doré entoure votre parcours'+(pos?'. Le point rouge est votre position.':'.');
+    c.appendChild(lg2);
     b.e.forEach(function(i,k){
       var l=L[i];
       var it=item(!!vus[l.id],(k+1)+'. '+l.n,l.adr||(l.a?'Paris '+ordi(l.a):''),'',function(){retourVers='bd';ouvreF(l);});
       it.setAttribute('data-id',l.id);c.appendChild(it);
     });
     vue('b');
+    dessineCarte(b);
+  }
+  // cartes Google Maps : la cle est publique par nature, elle est restreinte a l'adresse du site dans la console Google
+  var GMAPS_KEY='AIzaSyBA9nAItbFwzOicYF9Fu7rZKMbh_6YTQ0k', carteG=null, carteP=null, gPret=null;
+  function chargeGoogle(cb,ko){
+    if(window.google&&window.google.maps&&window.google.maps.importLibrary){cb();return;}
+    if(!GMAPS_KEY||GMAPS_KEY==='A_REMPLIR'){ko();return;}
+    if(!gPret){
+      gPret=true;
+      window.__gmOk=function(){};
+      var sc=document.createElement('script');
+      sc.src='https://maps.googleapis.com/maps/api/js?key='+encodeURIComponent(GMAPS_KEY)+'&loading=async&v=weekly&language=fr&region=FR&callback=__gmOk';
+      sc.async=true;sc.onerror=function(){gPret=null;};
+      document.head.appendChild(sc);
+    }
+    var essais=0,t=setInterval(function(){
+      essais++;
+      if(window.google&&window.google.maps&&window.google.maps.importLibrary){clearInterval(t);cb();}
+      else if(essais>60){clearInterval(t);gPret=null;ko();}
+    },150);
+  }
+  function msgCarte(id,txt){var e=$(id);if(e)e.innerHTML='<p class="meta" style="padding:12px">'+txt+'</p>';}
+  function dessineCarte(b){
+    var ko=function(){var m='La carte n’a pas pu se charger. La liste ci-dessous et le bouton Google Maps fonctionnent.';msgCarte('carte-paris',m);msgCarte('carte-p',m);};
+    chargeGoogle(function(){
+      window.google.maps.importLibrary('maps').then(function(){return window.google.maps.importLibrary('marker');}).then(function(lib){
+        var G=window.google.maps,AM=lib.AdvancedMarkerElement;
+        function pastille(txt,cl){var d=document.createElement('div');d.className='num-eg'+(cl?' '+cl:'');d.textContent=txt;return d;}
+        function point(cl){var d=document.createElement('div');d.className=cl;return d;}
+        var opt={mapId:'DEMO_MAP_ID',mapTypeControl:false,streetViewControl:false,fullscreenControl:true,gestureHandling:'cooperative',clickableIcons:false};
+        // 1. Paris entier
+        var mp=new G.Map($('carte-paris'),opt);carteP=mp;
+        var tous=new G.LatLngBounds(),rb=new G.LatLngBounds();
+        L.forEach(function(l,i){
+          var ll={lat:l.lat,lng:l.lon};tous.extend(ll);
+          if(b.e.indexOf(i)<0)new AM({map:mp,position:ll,content:point('pt-gris'),title:l.n||''});
+        });
+        b.e.forEach(function(i,k){
+          var l=L[i],ll={lat:l.lat,lng:l.lon};rb.extend(ll);
+          new AM({map:mp,position:ll,content:pastille(k+1,'petit'+(k===0?' depart':'')),title:(k+1)+'. '+(l.n||''),zIndex:100+k});
+        });
+        if(pos){var pm={lat:pos.lat,lng:pos.lon};tous.extend(pm);rb.extend(pm);new AM({map:mp,position:pm,content:point('moi-p'),title:'Votre position',zIndex:1000});}
+        new G.Rectangle({map:mp,bounds:rb.toJSON(),strokeColor:'#9a7b2f',strokeWeight:2,fillColor:'#9a7b2f',fillOpacity:.12,clickable:false});
+        mp.fitBounds(tous,10);
+        // 2. le parcours de pres
+        var mg=new G.Map($('carte-p'),opt);carteG=mg;
+        var iw=new G.InfoWindow(),zb=new G.LatLngBounds();
+        b.e.forEach(function(i,k){
+          var l=L[i],ll={lat:l.lat,lng:l.lon};zb.extend(ll);
+          var mk=new AM({map:mg,position:ll,content:pastille(k+1,k===0?'depart':''),title:(k+1)+'. '+(l.n||''),zIndex:100+k});
+          mk.addListener('click',function(){iw.setContent('<b>'+(k+1)+'. '+esc(l.n||'église sans nom')+'</b>'+(l.adr?'<br>'+esc(l.adr):''));iw.open({map:mg,anchor:mk});});
+        });
+        if(pos){var pm2={lat:pos.lat,lng:pos.lon};zb.extend(pm2);new AM({map:mg,position:pm2,content:point('moi-p'),title:'Votre position',zIndex:1000});}
+        mg.fitBounds(zb,40);
+      }).catch(ko);
+    },ko);
   }
   // annuaire
   var cats=[],arrs=[];
