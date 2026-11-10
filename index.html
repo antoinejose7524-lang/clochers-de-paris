@@ -114,11 +114,13 @@ h2{font-family:var(--titre);font-size:1.18rem;font-weight:600;margin:0 0 12px}
 .carte-p{height:320px;border:1px solid var(--trait);border-radius:4px;margin:0 0 8px;z-index:0}
 .carte-paris{height:230px;border:1px solid var(--trait);border-radius:4px;margin:0 0 6px}
 .titre-c{margin:14px 0 6px;font-size:.95rem;font-weight:600}
-.num-eg{background:var(--bleu);color:#fff;border:2px solid #fff;border-radius:50%;font:600 13px/24px var(--texte);text-align:center;width:28px;height:28px;box-shadow:0 1px 4px rgba(0,0,0,.4)}
+.num-eg{background:var(--bleu);color:#fff;border:3px solid #fff;border-radius:50%;font:700 15px/26px var(--texte);text-align:center;width:32px;height:32px;box-shadow:0 1px 5px rgba(0,0,0,.45)}
 .num-eg.depart{background:var(--or)}
-.num-eg.petit{width:22px;height:22px;font-size:11px;line-height:18px}
-.pt-gris{width:7px;height:7px;border-radius:50%;background:#8a8f9c;opacity:.7}
-.moi-p{background:#d62828;border:3px solid #fff;border-radius:50%;width:16px;height:16px;box-shadow:0 0 0 2px #d62828}
+.pt-gris{width:6px;height:6px;border-radius:50%;background:#9aa0ac;opacity:.55}
+.pt-or{width:12px;height:12px;border-radius:50%;background:#9a7b2f;border:2px solid #fff;box-shadow:0 0 0 1px #9a7b2f}
+.etiq-p{background:#9a7b2f;color:#fff;font:600 12px/1 var(--texte);padding:4px 9px;border-radius:12px;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,.4)}
+.moi-p{background:#d62828;border:3px solid #fff;border-radius:50%;width:18px;height:18px;box-shadow:0 0 0 2px #d62828}
+.moi-p.g{width:22px;height:22px}
 .legende-c{margin:0 0 14px;font-size:.82rem;color:var(--gris)}
 </style>
 </head>
@@ -404,8 +406,8 @@ h2{font-family:var(--titre);font-size:1.18rem;font-weight:600;margin:0 0 12px}
     var cp=document.createElement('div');cp.className='carte-paris';cp.id='carte-paris';c.appendChild(cp);
     var t2=document.createElement('p');t2.className='titre-c';t2.textContent='Le parcours, rue par rue';c.appendChild(t2);
     var cd=document.createElement('div');cd.className='carte-p';cd.id='carte-p';c.appendChild(cd);
-    var lg2=document.createElement('p');lg2.className='legende-c';
-    lg2.textContent='Les numéros donnent l’ordre de visite (1 = départ, en doré). Sur la carte de Paris, les points gris sont les autres paroisses et le cadre doré entoure votre parcours'+(pos?'. Le point rouge est votre position.':'.');
+    var lg2=document.createElement('p');lg2.className='legende-c';lg2.id='legende-c';
+    lg2.textContent=legende(null);
     c.appendChild(lg2);
     b.e.forEach(function(i,k){
       var l=L[i];
@@ -435,38 +437,104 @@ h2{font-family:var(--titre);font-size:1.18rem;font-weight:600;margin:0 0 12px}
     },150);
   }
   function msgCarte(id,txt){var e=$(id);if(e)e.innerHTML='<p class="meta" style="padding:12px">'+txt+'</p>';}
+  var GMAPS_MAPID='DEMO_MAP_ID';
+  function legende(mode){
+    var t='Numéros = ordre de visite (1 = départ, en doré).'+(pos?' Point rouge = votre position.':'')+' Sur la carte de Paris, le cadre doré situe le parcours.';
+    if(mode==='reel')t+=' Le trait bleu est l’itinéraire à pied, les flèches donnent le sens de marche.';
+    else if(mode==='vol')t+=' Les pointillés relient les églises dans l’ordre de visite, à vol d’oiseau : pour le chemin exact, utilisez le bouton Google Maps.';
+    return t;
+  }
+  // itineraire a pied : calcule une fois par parcours puis garde sur l'appareil (moins d'appels, plus rapide)
+  var itiMem={}, PRE_ITI='clochers-iti-';
+  function cleIti(b){return PRE_ITI+b.e.map(function(i){return L[i].id;}).join('_');}
+  function itiLit(b){
+    var k=cleIti(b);if(itiMem[k])return itiMem[k];
+    try{var v=JSON.parse(localStorage.getItem(k)||'null');if(v&&v.length>1){itiMem[k]=v;return v;}}catch(e){}
+    return null;
+  }
+  function itiGarde(b,pts){
+    var k=cleIti(b);itiMem[k]=pts;
+    try{
+      var ks=[];for(var i=0;i<localStorage.length;i++){var n=localStorage.key(i);if(n&&n.indexOf(PRE_ITI)===0)ks.push(n);}
+      while(ks.length>=30){localStorage.removeItem(ks.shift());}
+      localStorage.setItem(k,JSON.stringify(pts));
+    }catch(e){}
+  }
+  function itineraire(G,b,cb){
+    var c=itiLit(b);if(c){cb(c);return;}
+    G.importLibrary('routes').then(function(lib){
+      var pts=b.e.map(function(i){return {lat:L[i].lat,lng:L[i].lon};});
+      return lib.Route.computeRoutes({origin:pts[0],destination:pts[0],
+        intermediates:pts.slice(1).map(function(p){return {location:p};}),travelMode:'WALKING',fields:['path']}).then(function(r){
+        var rt=r&&r.routes&&r.routes[0];
+        if(!rt||!rt.path||rt.path.length<2)throw new Error('itineraire vide');
+        var out=rt.path.map(function(p){
+          var la=typeof p.lat==='function'?p.lat():p.lat, ln=typeof p.lng==='function'?p.lng():p.lng;
+          return [Math.round(la*1e5)/1e5,Math.round(ln*1e5)/1e5];});
+        itiGarde(b,out);cb(out);
+      });
+    }).catch(function(){cb(null);});
+  }
+  function trait(G,map,pts,reel,epais){
+    if(reel){
+      new G.Polyline({map:map,path:pts,strokeColor:'#ffffff',strokeOpacity:1,strokeWeight:epais+3,zIndex:1});
+      new G.Polyline({map:map,path:pts,strokeColor:'#2b4a7d',strokeOpacity:.92,strokeWeight:epais,zIndex:2,
+        icons:epais>=4?[{icon:{path:G.SymbolPath.FORWARD_CLOSED_ARROW,scale:2.6,strokeColor:'#ffffff',strokeWeight:1,fillColor:'#2b4a7d',fillOpacity:1},offset:'60px',repeat:'120px'}]:null});
+    }else{
+      new G.Polyline({map:map,path:pts,strokeOpacity:0,zIndex:2,
+        icons:[{icon:{path:'M 0,-1 0,1',strokeOpacity:1,strokeColor:'#2b4a7d',scale:3},offset:'0',repeat:'12px'}]});
+    }
+  }
   function dessineCarte(b){
     var ko=function(){var m='La carte n’a pas pu se charger. La liste ci-dessous et le bouton Google Maps fonctionnent.';msgCarte('carte-paris',m);msgCarte('carte-p',m);};
     chargeGoogle(function(){
       window.google.maps.importLibrary('maps').then(function(){return window.google.maps.importLibrary('marker');}).then(function(lib){
         var G=window.google.maps,AM=lib.AdvancedMarkerElement;
         function pastille(txt,cl){var d=document.createElement('div');d.className='num-eg'+(cl?' '+cl:'');d.textContent=txt;return d;}
-        function point(cl){var d=document.createElement('div');d.className=cl;return d;}
-        var opt={mapId:'DEMO_MAP_ID',mapTypeControl:false,streetViewControl:false,fullscreenControl:true,gestureHandling:'cooperative',clickableIcons:false};
-        // 1. Paris entier
+        function point(cl,txt){var d=document.createElement('div');d.className=cl;if(txt)d.textContent=txt;return d;}
+        var opt={mapId:GMAPS_MAPID,mapTypeControl:false,streetViewControl:false,fullscreenControl:true,gestureHandling:'cooperative',clickableIcons:false};
+        var boucle=b.e.map(function(i){return {lat:L[i].lat,lng:L[i].lon};});
+        // 1. Paris entier : points gris = autres paroisses, cadre dore + etiquette = le parcours
         var mp=new G.Map($('carte-paris'),opt);carteP=mp;
         var tous=new G.LatLngBounds(),rb=new G.LatLngBounds();
         L.forEach(function(l,i){
           var ll={lat:l.lat,lng:l.lon};tous.extend(ll);
           if(b.e.indexOf(i)<0)new AM({map:mp,position:ll,content:point('pt-gris'),title:l.n||''});
         });
-        b.e.forEach(function(i,k){
-          var l=L[i],ll={lat:l.lat,lng:l.lon};rb.extend(ll);
-          new AM({map:mp,position:ll,content:pastille(k+1,'petit'+(k===0?' depart':'')),title:(k+1)+'. '+(l.n||''),zIndex:100+k});
-        });
-        if(pos){var pm={lat:pos.lat,lng:pos.lon};tous.extend(pm);rb.extend(pm);new AM({map:mp,position:pm,content:point('moi-p'),title:'Votre position',zIndex:1000});}
-        new G.Rectangle({map:mp,bounds:rb.toJSON(),strokeColor:'#9a7b2f',strokeWeight:2,fillColor:'#9a7b2f',fillOpacity:.12,clickable:false});
+        boucle.forEach(function(ll){rb.extend(ll);});
+        if(pos){var pm={lat:pos.lat,lng:pos.lon};tous.extend(pm);rb.extend(pm);}
+        var sw=rb.getSouthWest(),ne=rb.getNorthEast();
+        rb.extend({lat:sw.lat()-0.004,lng:sw.lng()-0.006});rb.extend({lat:ne.lat()+0.004,lng:ne.lng()+0.006});
+        new G.Rectangle({map:mp,bounds:rb.toJSON(),strokeColor:'#9a7b2f',strokeWeight:3,fillColor:'#9a7b2f',fillOpacity:.2,clickable:false,zIndex:1});
+        boucle.forEach(function(ll,k){new AM({map:mp,position:ll,content:point('pt-or'),title:(k+1)+'. '+(L[b.e[k]].n||''),zIndex:100});});
+        new AM({map:mp,position:{lat:rb.getNorthEast().lat(),lng:(rb.getNorthEast().lng()+rb.getSouthWest().lng())/2},content:point('etiq-p','Votre parcours'),zIndex:200});
+        if(pos)new AM({map:mp,position:{lat:pos.lat,lng:pos.lon},content:point('moi-p g'),title:'Votre position',zIndex:1000});
         mp.fitBounds(tous,10);
         // 2. le parcours de pres
         var mg=new G.Map($('carte-p'),opt);carteG=mg;
         var iw=new G.InfoWindow(),zb=new G.LatLngBounds();
-        b.e.forEach(function(i,k){
-          var l=L[i],ll={lat:l.lat,lng:l.lon};zb.extend(ll);
+        boucle.forEach(function(ll,k){
+          var l=L[b.e[k]];zb.extend(ll);
           var mk=new AM({map:mg,position:ll,content:pastille(k+1,k===0?'depart':''),title:(k+1)+'. '+(l.n||''),zIndex:100+k});
           mk.addListener('click',function(){iw.setContent('<b>'+(k+1)+'. '+esc(l.n||'église sans nom')+'</b>'+(l.adr?'<br>'+esc(l.adr):''));iw.open({map:mg,anchor:mk});});
         });
         if(pos){var pm2={lat:pos.lat,lng:pos.lon};zb.extend(pm2);new AM({map:mg,position:pm2,content:point('moi-p'),title:'Votre position',zIndex:1000});}
-        mg.fitBounds(zb,40);
+        mg.fitBounds(zb,50);
+        // 3. itineraire a pied (ou pointilles si indisponible)
+        itineraire(G,b,function(res){
+          if(carteG!==mg)return;
+          var lg=$('legende-c');
+          if(res){
+            var path=res.map(function(q){return {lat:q[0],lng:q[1]};});
+            trait(G,mp,path,true,4);trait(G,mg,path,true,5);
+            path.forEach(function(q){zb.extend(q);});mg.fitBounds(zb,50);
+            if(lg)lg.textContent=legende('reel');
+          }else{
+            var ferme=boucle.concat([boucle[0]]);
+            trait(G,mp,ferme,false,3);trait(G,mg,ferme,false,3);
+            if(lg)lg.textContent=legende('vol');
+          }
+        });
       }).catch(ko);
     },ko);
   }
