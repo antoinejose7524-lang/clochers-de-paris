@@ -12,6 +12,12 @@ img{max-width:100%}
 </style>
 <title>Les Clochers de Paris</title>
 <meta name="claude:viewport-fit-sides" content="cover">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#2b4a7d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Clochers">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>
 /* Deux entrees : par parcours ou par annuaire filtrable ; progression gardee dans le navigateur */
@@ -778,5 +784,8 @@ h2{font-family:var(--titre);font-size:1.18rem;font-weight:600;margin:0 0 12px}
 })();
 </script>
 
+<script>
+if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}
+</script>
 </body>
 </html>
