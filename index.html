@@ -67,6 +67,13 @@ h2{font-family:var(--titre);font-size:1.18rem;font-weight:600;margin:0 0 12px}
 .pastille{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--trait);flex:none;
  display:grid;place-items:center;font-size:13px}
 .pastille.ok{background:var(--bleu);border-color:var(--bleu);color:#fff}
+.rang{display:flex;gap:8px;align-items:stretch}
+.rang .item{flex:1;min-width:0;width:auto}
+.case{flex:none;width:52px;background:var(--carte);border:1px solid var(--trait);border-radius:4px;display:grid;place-items:center;cursor:pointer;padding:0;font:inherit;color:inherit}
+.case:hover{border-color:var(--bleu)}
+.case:focus-visible{outline:2px solid var(--bleu);outline-offset:2px}
+.rappel .coche{min-height:44px;padding:0;gap:12px}
+.rappel .coche input{width:22px;height:22px;flex:none}
 .retour{background:none;border:0;color:var(--bleu);font:inherit;cursor:pointer;padding:0;margin-bottom:14px}
 .fiche{background:var(--carte);border:1px solid var(--trait);border-radius:4px;padding:18px}
 .fiche h2{margin-bottom:2px}
@@ -147,6 +154,7 @@ h2{font-family:var(--titre);font-size:1.18rem;font-weight:600;margin:0 0 12px}
 </div>
 
 <div id="vue-boucles" role="tabpanel">
+  <div id="rappel" class="invit rappel" role="region" aria-label="Rappel de visite" hidden></div>
   <p class="intro-pos" style="margin-bottom:6px"><b>Combien de temps avez-vous ?</b></p>
   <div class="formats" id="formats" role="group" aria-label="Durée du parcours"></div>
   <div id="zone-pos">
@@ -203,6 +211,46 @@ h2{font-family:var(--titre);font-size:1.18rem;font-weight:600;margin:0 0 12px}
   var vv=0;
   function garde(){vv++;try{localStorage.setItem(CLE,JSON.stringify(vus));}catch(e){}}
   function dispo(i){return !vus[L[i].id];}
+  // vus[id] = date de visite en millisecondes (les anciennes valeurs "1" restent comprises comme "visitée", sans date)
+  function marque(id,t){vus[id]=t||Date.now();}
+  function dateVue(id){var v=vus[id];if(!(v>1e12))return '';try{return new Date(v).toLocaleDateString('fr-FR',{day:'numeric',month:'long'});}catch(e){return '';}}
+  // question au retour : on mémorise le dernier parcours ouvert
+  var CLE_OUV='clochers-ouvert', DELAI_MIN=45*60000, DELAI_MAX=48*3600000;
+  function noteOuverture(b){try{localStorage.setItem(CLE_OUV,JSON.stringify({t:Date.now(),titre:b.titre,ids:b.e.map(function(i){return L[i].id;})}));}catch(e){}}
+  function effaceOuv(){try{localStorage.removeItem(CLE_OUV);}catch(e){}}
+  function ilYa(ms){var m=Math.round(ms/60000);if(m<90)return 'il y a '+m+' min';var h=Math.round(m/60);if(h<36)return 'il y a '+h+' h';return 'il y a '+Math.round(h/24)+' jours';}
+  function verifRetour(){
+    var z=$('rappel');if(!z)return;
+    var r=null;try{r=JSON.parse(localStorage.getItem(CLE_OUV)||'null');}catch(e){r=null;}
+    var cache=function(){z.hidden=true;z.textContent='';z.removeAttribute('data-t');};
+    if(!r||!r.ids||typeof r.t!=='number'){cache();return;}
+    var age=Date.now()-r.t;
+    if(age>DELAI_MAX){effaceOuv();cache();return;}
+    if(age<DELAI_MIN||$('vue-boucles').hidden||$('zone-pos').hidden){cache();return;}
+    var nom={};L.forEach(function(l){nom[l.id]=l.n||'église sans nom';});
+    var reste=r.ids.filter(function(id){return nom[id]&&!vus[id];});
+    if(!reste.length){effaceOuv();cache();return;}
+    if(z.getAttribute('data-t')===String(r.t)&&!z.hidden)return;
+    z.textContent='';z.setAttribute('data-t',String(r.t));
+    var q=document.createElement('p');
+    q.textContent='Vous avez ouvert le parcours «\u00a0'+r.titre+'\u00a0» '+ilYa(age)+'. Quelles églises avez-vous visitées ? Cochez-les, les autres resteront à visiter.';
+    z.appendChild(q);
+    reste.forEach(function(id){
+      var lb=document.createElement('label');lb.className='coche';
+      var cb=document.createElement('input');cb.type='checkbox';cb.value=id;
+      lb.appendChild(cb);lb.appendChild(document.createTextNode(nom[id]));z.appendChild(lb);
+    });
+    var bt=document.createElement('div');bt.className='invit-btn';bt.style.marginTop='8px';
+    var ok=document.createElement('button');ok.type='button';ok.className='bouton';ok.textContent='Enregistrer';
+    var ig=document.createElement('button');ig.type='button';ig.className='bouton off';ig.textContent='Ignorer';
+    ok.addEventListener('click',function(){
+      var n=0;z.querySelectorAll('input:checked').forEach(function(cb){marque(cb.value,r.t);n++;});
+      effaceOuv();if(n){garde();}maj();rendB();
+    });
+    ig.addEventListener('click',function(){effaceOuv();cache();});
+    bt.appendChild(ok);bt.appendChild(ig);z.appendChild(bt);
+    z.hidden=false;
+  }
   var CLE_ICI='clochers-ici', ici='';
   try{ici=localStorage.getItem(CLE_ICI)||'';}catch(e){ici='';}
   var CLE_ADR='clochers-adresse', pos=null;
@@ -224,9 +272,9 @@ h2{font-family:var(--titre);font-size:1.18rem;font-weight:600;margin:0 0 12px}
   }
   function past(ok){var d=document.createElement('span');d.className='pastille'+(ok?' ok':'');
     d.textContent=ok?'\u2713':'';d.setAttribute('aria-hidden','true');return d;}
-  function item(ok,titre,meta,fin,clic){
+  function item(ok,titre,meta,fin,clic,sansPastille){
     var b=document.createElement('button');b.type='button';b.className='item';
-    b.appendChild(past(ok));
+    if(!sansPastille)b.appendChild(past(ok));
     var t=document.createElement('span');t.className='titre';
     t.innerHTML=titre+(meta?'<br><span class="meta">'+meta+'</span>':'');
     b.appendChild(t);
@@ -415,10 +463,13 @@ h2{font-family:var(--titre);font-size:1.18rem;font-weight:600;margin:0 0 12px}
         (b.e.length>1?'~'+b.pas.toLocaleString('fr-FR')+' pas<br>environ '+heures(b.min)+'<br>':'à visiter seule<br>')+f+'/'+b.e.length+' vues',function(){ouvreB(b);}));
     });
     maj();
+    verifRetour();
   }
   var bCourante=null, retourVers='b';
   function ouvreB(b){
     bCourante=b;
+    noteOuverture(b);
+    $('rappel').hidden=true;
     $('zone-pos').hidden=true;
     var c=$('liste-boucles');c.textContent='';
     var r=document.createElement('button');r.type='button';r.className='retour';
@@ -444,17 +495,30 @@ h2{font-family:var(--titre);font-size:1.18rem;font-weight:600;margin:0 0 12px}
     var lg2=document.createElement('p');lg2.className='legende-c';lg2.id='legende-c';
     lg2.textContent=legende(null);
     c.appendChild(lg2);
+    var fait=document.createElement('button');fait.type='button';fait.id='btn-fait';fait.className='bouton';fait.style.marginTop='16px';
+    function restantes(){return b.e.filter(function(i){return !vus[L[i].id];}).length;}
+    function majFait(){
+      var r=restantes(),n=b.e.length;
+      fait.textContent=r===0?'Annuler : remettre ces églises à visiter':
+        (n===1?'J’ai visité cette église':(r===n?'J’ai fait tout le parcours : marquer les '+n+' églises':(r===1?'Marquer aussi l’église restante':'Marquer aussi les '+r+' églises restantes')));
+    }
     b.e.forEach(function(i,k){
       var l=L[i];
-      var it=item(!!vus[l.id],(k+1)+'. '+l.n,l.adr||(l.a?'Paris '+ordi(l.a):''),'',function(){retourVers='bd';ouvreF(l);});
-      it.setAttribute('data-id',l.id);c.appendChild(it);
+      var it=item(false,(k+1)+'. '+l.n,l.adr||(l.a?'Paris '+ordi(l.a):''),'',function(){retourVers='bd';ouvreF(l);},true);
+      it.setAttribute('data-id',l.id);
+      var rg=document.createElement('div');rg.className='rang';
+      var cs=document.createElement('button');cs.type='button';cs.className='case';
+      var ps=past(!!vus[l.id]);cs.appendChild(ps);
+      var etatCase=function(){var ok=!!vus[l.id];ps.className='pastille'+(ok?' ok':'');ps.textContent=ok?'\u2713':'';
+        cs.setAttribute('aria-pressed',ok?'true':'false');cs.setAttribute('aria-label',(ok?'Visitée : ':'Marquer comme visitée : ')+(l.n||'église'));};
+      etatCase();
+      cs.addEventListener('click',function(){if(vus[l.id])delete vus[l.id];else marque(l.id);garde();maj();etatCase();majFait();});
+      rg.appendChild(cs);rg.appendChild(it);c.appendChild(rg);
     });
-    var fait=document.createElement('button');fait.type='button';fait.id='btn-fait';fait.className='bouton';fait.style.marginTop='16px';
-    var toutVu=function(){return b.e.every(function(i){return vus[L[i].id];});};
-    fait.textContent=toutVu()?'Annuler : remettre ces églises à visiter':(b.e.length>1?'J’ai fait ce parcours':'J’ai visité cette église');
+    majFait();
     fait.addEventListener('click',function(){
-      var annule=toutVu();
-      b.e.forEach(function(i){if(annule)delete vus[L[i].id];else vus[L[i].id]=1;});
+      var annule=restantes()===0;
+      b.e.forEach(function(i){if(annule)delete vus[L[i].id];else if(!vus[L[i].id])marque(L[i].id);});
       garde();maj();rendB();window.scrollTo(0,0);
     });
     c.appendChild(fait);
@@ -769,12 +833,13 @@ h2{font-family:var(--titre);font-size:1.18rem;font-weight:600;margin:0 0 12px}
     f.appendChild(li);
     var b=document.createElement('button');b.type='button';
     function etat(){var ok=!!vus[l.id];b.className='bouton'+(ok?' off':'');
-      b.textContent=ok?'Visitée — annuler':'Marquer comme visitée';}
+      b.textContent=ok?'Visitée'+(dateVue(l.id)?' le '+dateVue(l.id):'')+' — annuler':'Marquer comme visitée';}
     b.addEventListener('click',function(){
-      if(vus[l.id])delete vus[l.id];else vus[l.id]=1; garde();etat();maj();});
+      if(vus[l.id])delete vus[l.id];else marque(l.id); garde();etat();maj();});
     etat();f.appendChild(b);
     vue('f');
   }
+  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')verifRetour();});
   $('retour').addEventListener('click',function(){
     if(retourVers==='a'){rendA();vue('a');}
     else if(retourVers==='bd'&&bCourante){ouvreB(bCourante);}
