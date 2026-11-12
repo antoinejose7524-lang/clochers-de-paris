@@ -2,9 +2,9 @@
    Principe : le site change souvent, donc on essaie TOUJOURS le réseau d'abord
    et on ne se rabat sur la copie du téléphone que si le réseau échoue.
    Google Maps et les API externes ne sont jamais mises en cache. */
-const VERSION = 'v1';
+const VERSION = 'v2';
 const CACHE = 'clochers-' + VERSION;
-const BASE = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png'];
+const BASE = ['./', 'index.html', 'ouverture.json', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png'];
 
 self.addEventListener('install', function (e) {
   e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(BASE); }).then(function () { return self.skipWaiting(); }));

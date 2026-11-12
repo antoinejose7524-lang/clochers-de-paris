@@ -1,0 +1,1399 @@
+{
+ "_lisez_moi": {
+  "objet": "Horaires d'OUVERTURE des églises pour la visite (pas les messes). Un seul fichier pour les 106 paroisses : le site le lit une fois, filtre par arrondissement dans le code.",
+  "cle": "id = identifiant OpenStreetMap utilisé par index.html (champ « id » de chaque lieu).",
+  "categorie": "classement du menu « Ma paroisse en 1 clic » du diocèse : Paroisse (dont cathédrale et basiliques) ; Chapelle et sanctuaire ; Communauté religieuse ; Église orientale. Pas de classement par type de bâtiment.",
+  "a_confirmer": "true = afficher « à confirmer auprès de la paroisse » même si le statut est verifie",
+  "statut": {
+   "verifie": "horaires lus sur le site ou l'affichage de la paroisse",
+   "verifie_partiel": "lus sur la paroisse mais incomplets (ex. période scolaire seulement)",
+   "diocese": "seulement sur la fiche du diocèse, à confirmer",
+   "osm_non_verifie": "le site a déjà un horaire OpenStreetMap, jamais vérifié",
+   "non_releve": "rien relevé : afficher « à confirmer auprès de la paroisse »"
+  },
+  "jours": "clés lun mar mer jeu ven sam dim ; chaque jour = liste de créneaux [début, fin] en 24 h, heure de Paris",
+  "exhaustif": "true = un jour non listé est fermé ; false = un jour non listé est inconnu",
+  "incertain": "jours où la paroisse ne garantit pas l'ouverture ou ne la précise pas",
+  "scolaire_seulement": "true = horaires valables hors vacances scolaires",
+  "regle_d_affichage": "toujours afficher la date de relevé et la source ; si deux sources divergent, la paroisse l'emporte sur le diocèse ; ne jamais afficher « ouvert » pour un statut autre que verifie",
+  "maj": "à revérifier à chaque rentrée, avant Noël et avant l'été"
+ },
+ "version": "2026-11-12",
+ "eglises": [
+  {
+   "id": "way/53762963",
+   "nom": "Saint-Eustache",
+   "arr": "75001",
+   "categorie": "Paroisse",
+   "statut": "osm_non_verifie",
+   "notes": [
+    "Le site utilise déjà le champ « h » (format OpenStreetMap), jamais vérifié auprès de la paroisse."
+   ]
+  },
+  {
+   "id": "way/53770908",
+   "nom": "Saint-Germain l’Auxerrois",
+   "arr": "75001",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/53933240",
+   "nom": "Saint-Leu - Saint-Gilles",
+   "arr": "75001",
+   "categorie": "Paroisse",
+   "statut": "osm_non_verifie",
+   "notes": [
+    "Le site utilise déjà le champ « h » (format OpenStreetMap), jamais vérifié auprès de la paroisse."
+   ]
+  },
+  {
+   "id": "way/42722202",
+   "nom": "Saint-Roch",
+   "arr": "75001",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/55178129",
+   "nom": "Notre-Dame de Bonne Nouvelle",
+   "arr": "75002",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/54661742",
+   "nom": "Notre-Dame des Victoires",
+   "arr": "75002",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/58150045",
+   "nom": "Saint-Denys du Saint-Sacrement",
+   "arr": "75003",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/56290843",
+   "nom": "Saint-Nicolas des Champs",
+   "arr": "75003",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/56457505",
+   "nom": "Sainte-Élisabeth de Hongrie",
+   "arr": "75003",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/55984117",
+   "nom": "Notre-Dame des Blancs-Manteaux",
+   "arr": "75004",
+   "categorie": "Paroisse",
+   "statut": "osm_non_verifie",
+   "notes": [
+    "Le site utilise déjà le champ « h » (format OpenStreetMap), jamais vérifié auprès de la paroisse."
+   ]
+  },
+  {
+   "id": "way/55314295",
+   "nom": "Saint-Louis en l’Île",
+   "arr": "75004",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/55742120",
+   "nom": "Saint-Merry",
+   "arr": "75004",
+   "categorie": "Paroisse",
+   "statut": "osm_non_verifie",
+   "notes": [
+    "Le site utilise déjà le champ « h » (format OpenStreetMap), jamais vérifié auprès de la paroisse."
+   ]
+  },
+  {
+   "id": "way/56046786",
+   "nom": "Saint-Paul - Saint-Louis",
+   "arr": "75004",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/55343672",
+   "nom": "Saint-Étienne du Mont",
+   "arr": "75005",
+   "categorie": "Paroisse",
+   "statut": "osm_non_verifie",
+   "notes": [
+    "Le site utilise déjà le champ « h » (format OpenStreetMap), jamais vérifié auprès de la paroisse."
+   ]
+  },
+  {
+   "id": "way/60279510",
+   "nom": "Saint-Jacques du Haut-Pas",
+   "arr": "75005",
+   "categorie": "Paroisse",
+   "statut": "osm_non_verifie",
+   "notes": [
+    "Le site utilise déjà le champ « h » (format OpenStreetMap), jamais vérifié auprès de la paroisse."
+   ]
+  },
+  {
+   "id": "way/24406636",
+   "nom": "Saint-Médard",
+   "arr": "75005",
+   "categorie": "Paroisse",
+   "statut": "osm_non_verifie",
+   "notes": [
+    "Le site utilise déjà le champ « h » (format OpenStreetMap), jamais vérifié auprès de la paroisse."
+   ]
+  },
+  {
+   "id": "way/19740659",
+   "nom": "Saint-Séverin - Saint-Nicolas",
+   "arr": "75005",
+   "categorie": "Paroisse",
+   "statut": "osm_non_verifie",
+   "notes": [
+    "Le site utilise déjà le champ « h » (format OpenStreetMap), jamais vérifié auprès de la paroisse."
+   ]
+  },
+  {
+   "id": "way/64121803",
+   "nom": "Notre-Dame des Champs",
+   "arr": "75006",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/62287173",
+   "nom": "Saint-Germain des Prés",
+   "arr": "75006",
+   "categorie": "Paroisse",
+   "statut": "osm_non_verifie",
+   "notes": [
+    "Le site utilise déjà le champ « h » (format OpenStreetMap), jamais vérifié auprès de la paroisse."
+   ]
+  },
+  {
+   "id": "way/16077204",
+   "nom": "Saint-Sulpice",
+   "arr": "75006",
+   "categorie": "Paroisse",
+   "statut": "osm_non_verifie",
+   "notes": [
+    "Le site utilise déjà le champ « h » (format OpenStreetMap), jamais vérifié auprès de la paroisse."
+   ]
+  },
+  {
+   "id": "way/68893289",
+   "nom": "Saint-François-Xavier",
+   "arr": "75007",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/69072238",
+   "nom": "Saint-Pierre du Gros Caillou",
+   "arr": "75007",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/63536576",
+   "nom": "Saint-Thomas d’Aquin",
+   "arr": "75007",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/64952290",
+   "nom": "Sainte-Clotilde",
+   "arr": "75007",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/68256672",
+   "nom": "Saint-André de l’Europe",
+   "arr": "75008",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/67501490",
+   "nom": "Saint-Augustin",
+   "arr": "75008",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/68831257",
+   "nom": "Saint-Philippe du Roule",
+   "arr": "75008",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/54180046",
+   "nom": "Sainte-Madeleine",
+   "arr": "75008",
+   "categorie": "Paroisse",
+   "statut": "osm_non_verifie",
+   "notes": [
+    "Le site utilise déjà le champ « h » (format OpenStreetMap), jamais vérifié auprès de la paroisse."
+   ]
+  },
+  {
+   "id": "way/25688622",
+   "nom": "Notre-Dame de Lorette",
+   "arr": "75009",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/50371917",
+   "nom": "Saint-Eugène - Sainte-Cécile",
+   "arr": "75009",
+   "categorie": "Paroisse",
+   "statut": "osm_non_verifie",
+   "notes": [
+    "Le site utilise déjà le champ « h » (format OpenStreetMap), jamais vérifié auprès de la paroisse."
+   ]
+  },
+  {
+   "id": "way/69226577",
+   "nom": "Saint-Louis d’Antin",
+   "arr": "75009",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/49872150",
+   "nom": "Sainte-Trinité",
+   "arr": "75009",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/63203063",
+   "nom": "Saint-Joseph-Artisan",
+   "arr": "75010",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/63200612",
+   "nom": "Saint-Laurent",
+   "arr": "75010",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/63201579",
+   "nom": "Saint-Martin-des-Champs",
+   "arr": "75010",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/63197162",
+   "nom": "Saint-Vincent de Paul",
+   "arr": "75010",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/145591022",
+   "nom": "Bon Pasteur",
+   "arr": null,
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/63646922",
+   "nom": "Notre-Dame d’Espérance",
+   "arr": null,
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/63640725",
+   "nom": "Notre-Dame du Perpétuel Secours",
+   "arr": "75011",
+   "categorie": "Paroisse",
+   "statut": "osm_non_verifie",
+   "notes": [
+    "Le site utilise déjà le champ « h » (format OpenStreetMap), jamais vérifié auprès de la paroisse."
+   ]
+  },
+  {
+   "id": "way/63638108",
+   "nom": "Saint-Ambroise",
+   "arr": "75011",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "relation/1589962",
+   "nom": "Saint-Joseph des Nations",
+   "arr": "75011",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/115804138",
+   "nom": "Sainte-Marguerite",
+   "arr": "75011",
+   "categorie": "Paroisse",
+   "statut": "osm_non_verifie",
+   "notes": [
+    "Le site utilise déjà le champ « h » (format OpenStreetMap), jamais vérifié auprès de la paroisse."
+   ]
+  },
+  {
+   "id": "way/77385186",
+   "nom": "Immaculée Conception",
+   "arr": "75012",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/78271179",
+   "nom": "Notre-Dame de Bercy",
+   "arr": "75012",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/94236417",
+   "nom": "Saint-Antoine des Quinze-Vingts",
+   "arr": "75012",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/78019585",
+   "nom": "Saint-Éloi",
+   "arr": "75012",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/130906379",
+   "nom": "Saint-Esprit",
+   "arr": "75012",
+   "categorie": "Paroisse",
+   "statut": "osm_non_verifie",
+   "notes": [
+    "Le site utilise déjà le champ « h » (format OpenStreetMap), jamais vérifié auprès de la paroisse."
+   ]
+  },
+  {
+   "id": "way/79084116",
+   "nom": "Notre-Dame de la Gare",
+   "arr": "75013",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/78469927",
+   "nom": "Saint-Albert-le-Grand",
+   "arr": "75013",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/79084388",
+   "nom": "Saint-Hippolyte",
+   "arr": "75013",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/962298895",
+   "nom": "Saint-Jean des Deux Moulins",
+   "arr": "75013",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/78534351",
+   "nom": "Saint-Marcel",
+   "arr": "75013",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/78470232",
+   "nom": "Sainte-Anne de la Butte-aux-Cailles",
+   "arr": "75013",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/78407279",
+   "nom": "Sainte-Rosalie",
+   "arr": "75013",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/79717909",
+   "nom": "Notre-Dame du Rosaire",
+   "arr": "75014",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/79687825",
+   "nom": "Notre-Dame du Travail",
+   "arr": "75014",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/79626601",
+   "nom": "Saint-Dominique",
+   "arr": "75014",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/16929093",
+   "nom": "Saint-Pierre de Montrouge",
+   "arr": "75014",
+   "categorie": "Paroisse",
+   "statut": "osm_non_verifie",
+   "notes": [
+    "Le site utilise déjà le champ « h » (format OpenStreetMap), jamais vérifié auprès de la paroisse."
+   ]
+  },
+  {
+   "id": "way/24303512",
+   "nom": "Notre-Dame de l’Arche d’Alliance",
+   "arr": "75015",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/304186825",
+   "nom": "Notre-Dame de La Salette",
+   "arr": "75015",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/105535815",
+   "nom": "Notre-Dame de Nazareth",
+   "arr": "75015",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/80144693",
+   "nom": "Saint-Antoine de Padoue",
+   "arr": "75015",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/53400775",
+   "nom": "Saint-Christophe de Javel",
+   "arr": "75015",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/23811420",
+   "nom": "Saint-Jean-Baptiste de Grenelle",
+   "arr": "75015",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/80266257",
+   "nom": "Saint-Jean-Baptiste de La Salle",
+   "arr": "75015",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/14349317",
+   "nom": "Saint-Lambert de Vaugirard",
+   "arr": "75015",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/15912913",
+   "nom": "Saint-Léon",
+   "arr": "75015",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/85615121",
+   "nom": "Notre-Dame d’Auteuil",
+   "arr": "75016",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/83830759",
+   "nom": "Notre-Dame de Grâce de Passy",
+   "arr": "75016",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/83715715",
+   "nom": "Notre-Dame de l’Assomption de Passy",
+   "arr": "75016",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/86277623",
+   "nom": "Saint-François de Molitor",
+   "arr": "75016",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/80853671",
+   "nom": "Saint-Honoré d’Eylau",
+   "arr": "75016",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/79276832",
+   "nom": "Saint-Pierre de Chaillot",
+   "arr": "75016",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/87959071",
+   "nom": "Sainte-Jeanne de Chantal",
+   "arr": "75016",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/48433146",
+   "nom": "Notre-Dame de Compassion",
+   "arr": "75017",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/84324974",
+   "nom": "Saint-Charles de Monceau",
+   "arr": "75017",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/84325824",
+   "nom": "Saint-Ferdinand des Ternes",
+   "arr": "75017",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/84326196",
+   "nom": "Saint-François de Sales",
+   "arr": "75017",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/75747135",
+   "nom": "Saint-Joseph des Épinettes",
+   "arr": "75017",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/75748771",
+   "nom": "Saint-Michel",
+   "arr": "75017",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/75750389",
+   "nom": "Sainte-Marie des Batignolles",
+   "arr": "75017",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/84324632",
+   "nom": "Sainte-Odile",
+   "arr": "75017",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/36855293",
+   "nom": "Notre-Dame de Clignancourt",
+   "arr": "75018",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/78020496",
+   "nom": "Notre-Dame du Bon Conseil",
+   "arr": "75018",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/78005074",
+   "nom": "Saint-Bernard de la Chapelle",
+   "arr": null,
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/84153309",
+   "nom": "Saint-Denys de la Chapelle",
+   "arr": "75018",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/77807770",
+   "nom": "Saint-Jean de Montmartre",
+   "arr": "75018",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/23884336",
+   "nom": "Saint-Pierre de Montmartre",
+   "arr": "75018",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/77670243",
+   "nom": "Sainte-Geneviève des Grandes Carrières",
+   "arr": "75018",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/48974965",
+   "nom": "Sainte-Hélène",
+   "arr": "75018",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/63213611",
+   "nom": "Notre-Dame de l’Assomption des Buttes Chaumont",
+   "arr": "75019",
+   "categorie": "Paroisse",
+   "statut": "verifie_partiel",
+   "a_confirmer": false,
+   "jours": {
+    "mar": [
+     [
+      "08:00",
+      "20:00"
+     ]
+    ],
+    "mer": [
+     [
+      "08:00",
+      "20:00"
+     ]
+    ],
+    "jeu": [
+     [
+      "08:00",
+      "20:00"
+     ]
+    ],
+    "ven": [
+     [
+      "08:00",
+      "20:00"
+     ]
+    ],
+    "sam": [
+     [
+      "08:00",
+      "20:00"
+     ]
+    ],
+    "dim": [
+     [
+      "08:00",
+      "12:30"
+     ]
+    ]
+   },
+   "exhaustif": false,
+   "incertain": [
+    "lun"
+   ],
+   "scolaire_seulement": true,
+   "texte": "En période scolaire : mardi au samedi 8h-20h, dimanche 8h-12h30. Lundi : « très souvent » ouverte (non garanti). Pendant les vacances : voir l'affichage près de la porte principale.",
+   "source": "https://ndassomption.fr/index.php?p=ouverture",
+   "date_page": null,
+   "releve_le": "2026-11-12",
+   "tel": null,
+   "notes": [
+    "Capture de la page envoyée par Antoine le 12/11/2026 (mon outil n'avait lu que le menu).",
+    "Horaires des vacances scolaires inconnus : appeler la paroisse avant une sortie en vacances."
+   ]
+  },
+  {
+   "id": "way/64038747",
+   "nom": "Notre-Dame des Foyers",
+   "arr": "75019",
+   "categorie": "Paroisse",
+   "statut": "verifie",
+   "a_confirmer": true,
+   "jours": {
+    "mar": [
+     [
+      "08:00",
+      "20:00"
+     ]
+    ],
+    "mer": [
+     [
+      "08:00",
+      "20:00"
+     ]
+    ],
+    "jeu": [
+     [
+      "08:00",
+      "20:00"
+     ]
+    ],
+    "ven": [
+     [
+      "08:00",
+      "20:00"
+     ]
+    ],
+    "sam": [
+     [
+      "08:00",
+      "20:00"
+     ]
+    ],
+    "dim": [
+     [
+      "08:00",
+      "20:00"
+     ]
+    ]
+   },
+   "exhaustif": true,
+   "incertain": [],
+   "scolaire_seulement": false,
+   "texte": "Du mardi au dimanche, 8h-20h.",
+   "source": "https://www.notredamedesfoyers.fr/",
+   "date_page": null,
+   "releve_le": "2026-11-12",
+   "tel": "01 40 34 46 44",
+   "notes": [
+    "Source : affiche de la paroisse (capture envoyée par Antoine le 12/11/2026), non datée.",
+    "La page /horaires/ du site ne donne que l'accueil (mar-ven 17h-18h45, sam 10h-11h45) : l'affiche est plus large, à confirmer une fois par téléphone.",
+    "Lundi : absent de l'affiche, donc fermée d'après elle."
+   ]
+  },
+  {
+   "id": "way/63233916",
+   "nom": "Saint-François d’Assise",
+   "arr": null,
+   "categorie": "Paroisse",
+   "statut": "verifie",
+   "a_confirmer": false,
+   "jours": {
+    "lun": [
+     [
+      "08:00",
+      "19:00"
+     ]
+    ],
+    "mar": [
+     [
+      "08:00",
+      "19:00"
+     ]
+    ],
+    "mer": [
+     [
+      "08:00",
+      "19:00"
+     ]
+    ],
+    "jeu": [
+     [
+      "08:00",
+      "19:00"
+     ]
+    ],
+    "ven": [
+     [
+      "08:00",
+      "19:00"
+     ]
+    ],
+    "dim": [
+     [
+      "09:00",
+      "19:00"
+     ]
+    ]
+   },
+   "exhaustif": false,
+   "incertain": [
+    "sam"
+   ],
+   "scolaire_seulement": false,
+   "texte": "En semaine 8h-19h ; dimanche 9h-19h. Samedi non précisé.",
+   "source": "https://saintfrancoisdassise.fr/horaires/",
+   "date_page": null,
+   "releve_le": "2026-11-12",
+   "tel": "01 42 39 64 58",
+   "notes": [
+    "Le site écrit « en semaine » sans citer le samedi.",
+    "La fiche du diocèse donne tous les jours 9h-19h30 : divergence, on retient le site de la paroisse.",
+    "Cette église n'a pas d'arrondissement dans les données du site (champ « a » vide) : à corriger en 75019."
+   ]
+  },
+  {
+   "id": "way/63239488",
+   "nom": "Saint-Georges de la Villette",
+   "arr": "75019",
+   "categorie": "Paroisse",
+   "statut": "verifie",
+   "a_confirmer": false,
+   "jours": {
+    "lun": [
+     [
+      "12:00",
+      "18:00"
+     ]
+    ],
+    "mar": [
+     [
+      "07:45",
+      "19:00"
+     ]
+    ],
+    "mer": [
+     [
+      "07:45",
+      "19:00"
+     ]
+    ],
+    "jeu": [
+     [
+      "07:45",
+      "19:00"
+     ]
+    ],
+    "ven": [
+     [
+      "07:45",
+      "18:00"
+     ]
+    ],
+    "sam": [
+     [
+      "08:45",
+      "19:30"
+     ]
+    ],
+    "dim": [
+     [
+      "09:00",
+      "18:30"
+     ]
+    ]
+   },
+   "exhaustif": true,
+   "incertain": [],
+   "scolaire_seulement": false,
+   "texte": "Lundi 12h-18h ; mardi-jeudi 7h45-19h ; vendredi 7h45-18h ; samedi 8h45-19h30 ; dimanche 9h-18h30.",
+   "source": "https://saintgeorgesdelavillette.fr/horaires/",
+   "date_page": null,
+   "releve_le": "2026-11-12",
+   "tel": null,
+   "notes": [
+    "Page sans date de mise à jour."
+   ]
+  },
+  {
+   "id": "way/64037954",
+   "nom": "Saint-Jacques - Saint-Christophe de la Villette",
+   "arr": "75019",
+   "categorie": "Paroisse",
+   "statut": "verifie",
+   "a_confirmer": false,
+   "jours": {
+    "lun": [
+     [
+      "08:00",
+      "19:30"
+     ]
+    ],
+    "mar": [
+     [
+      "08:00",
+      "19:30"
+     ]
+    ],
+    "mer": [
+     [
+      "08:00",
+      "19:30"
+     ]
+    ],
+    "jeu": [
+     [
+      "08:00",
+      "19:30"
+     ]
+    ],
+    "ven": [
+     [
+      "08:00",
+      "19:30"
+     ]
+    ],
+    "sam": [
+     [
+      "08:30",
+      "19:30"
+     ]
+    ],
+    "dim": [
+     [
+      "09:00",
+      "19:00"
+     ]
+    ]
+   },
+   "exhaustif": true,
+   "incertain": [],
+   "scolaire_seulement": false,
+   "texte": "Lundi-vendredi 8h-19h30 ; samedi 8h30-19h30 ; dimanche 9h-19h.",
+   "source": "https://www.sjsc.fr/presentation/horaires/",
+   "date_page": "2026-10-30",
+   "releve_le": "2026-11-12",
+   "tel": "01 40 36 57 89",
+   "notes": []
+  },
+  {
+   "id": "way/63212231",
+   "nom": "Saint-Jean-Baptiste de Belleville",
+   "arr": "75019",
+   "categorie": "Paroisse",
+   "statut": "diocese",
+   "a_confirmer": false,
+   "jours": {
+    "lun": [
+     [
+      "09:30",
+      "20:30"
+     ]
+    ],
+    "mar": [
+     [
+      "08:15",
+      "19:45"
+     ]
+    ],
+    "mer": [
+     [
+      "08:15",
+      "19:45"
+     ]
+    ],
+    "jeu": [
+     [
+      "08:15",
+      "19:45"
+     ]
+    ],
+    "ven": [
+     [
+      "08:15",
+      "19:45"
+     ]
+    ],
+    "sam": [
+     [
+      "08:15",
+      "19:45"
+     ]
+    ],
+    "dim": [
+     [
+      "08:15",
+      "19:45"
+     ]
+    ]
+   },
+   "exhaustif": true,
+   "incertain": [],
+   "scolaire_seulement": false,
+   "texte": "Lundi 9h30-20h30 ; mardi-dimanche 8h15-19h45.",
+   "source": "https://dioceseparis.fr/saint-jean-baptiste-de-belleville-46596.html",
+   "date_page": null,
+   "releve_le": "2026-11-12",
+   "tel": "01 42 08 54 54",
+   "notes": [
+    "Source : fiche Art, Culture et Foi du diocèse. Le site sjbb.fr (page d'accueil) ne donne pas d'horaires d'ouverture : à confirmer sur le site ou par téléphone.",
+    "Google Maps (capture du 12/11/2026) : tous les jours 8h-20h, sauf lundi et vendredi 8h-20h30. Diffère de la fiche du diocèse : deux sources non officielles qui se contredisent, donc appeler."
+   ]
+  },
+  {
+   "id": "way/259039017",
+   "nom": "Saint-Luc",
+   "arr": "75019",
+   "categorie": "Paroisse",
+   "statut": "verifie",
+   "a_confirmer": false,
+   "jours": {
+    "mer": [
+     [
+      "08:00",
+      "19:00"
+     ]
+    ],
+    "ven": [
+     [
+      "08:00",
+      "19:00"
+     ]
+    ],
+    "sam": [
+     [
+      "08:00",
+      "19:00"
+     ]
+    ],
+    "dim": [
+     [
+      "08:00",
+      "19:00"
+     ]
+    ],
+    "lun": [
+     [
+      "08:00",
+      "19:45"
+     ]
+    ],
+    "mar": [
+     [
+      "08:00",
+      "19:45"
+     ]
+    ],
+    "jeu": [
+     [
+      "08:00",
+      "19:45"
+     ]
+    ]
+   },
+   "exhaustif": true,
+   "incertain": [],
+   "scolaire_seulement": false,
+   "texte": "Tous les jours 8h-19h (19h45 les lundi, mardi et jeudi).",
+   "source": "https://ww2.saintlucparis.com/horaires/",
+   "date_page": null,
+   "releve_le": "2026-11-12",
+   "tel": "01 53 35 01 20",
+   "notes": [
+    "Page sans date de mise à jour."
+   ]
+  },
+  {
+   "id": "way/63234079",
+   "nom": "Sainte-Claire d’Assise",
+   "arr": "75019",
+   "categorie": "Paroisse",
+   "statut": "verifie",
+   "a_confirmer": false,
+   "jours": {
+    "lun": [
+     [
+      "08:00",
+      "19:30"
+     ]
+    ],
+    "mar": [
+     [
+      "08:00",
+      "19:30"
+     ]
+    ],
+    "mer": [
+     [
+      "08:00",
+      "19:30"
+     ]
+    ],
+    "jeu": [
+     [
+      "08:00",
+      "19:30"
+     ]
+    ],
+    "ven": [
+     [
+      "08:00",
+      "19:30"
+     ]
+    ],
+    "sam": [
+     [
+      "08:00",
+      "19:30"
+     ]
+    ],
+    "dim": [
+     [
+      "08:00",
+      "19:30"
+     ]
+    ]
+   },
+   "exhaustif": true,
+   "incertain": [],
+   "scolaire_seulement": false,
+   "texte": "Tous les jours, 8h-19h30. Accueil dans l'église (hors vacances scolaires) : lundi-vendredi 10h-12h et 17h-19h.",
+   "source": "https://www.sainteclaireparis.fr/",
+   "date_page": null,
+   "releve_le": "2026-11-12",
+   "tel": "01 42 02 11 36",
+   "notes": [
+    "Page « Horaires d'accueil dans l'église » (capture envoyée par Antoine le 12/11/2026). Le site refuse la lecture automatique : relevé à la main."
+   ]
+  },
+  {
+   "id": "node/2675730793",
+   "nom": "Sainte-Colette des Buttes Chaumont",
+   "arr": "75019",
+   "categorie": "Paroisse",
+   "statut": "verifie",
+   "a_confirmer": true,
+   "jours": {
+    "mar": [
+     [
+      "10:00",
+      "19:00"
+     ]
+    ],
+    "jeu": [
+     [
+      "10:00",
+      "19:00"
+     ]
+    ],
+    "ven": [
+     [
+      "10:00",
+      "19:00"
+     ]
+    ],
+    "mer": [
+     [
+      "10:00",
+      "18:00"
+     ]
+    ],
+    "sam": [
+     [
+      "09:00",
+      "18:00"
+     ]
+    ],
+    "dim": [
+     [
+      "09:30",
+      "12:30"
+     ]
+    ]
+   },
+   "exhaustif": true,
+   "incertain": [],
+   "scolaire_seulement": false,
+   "texte": "Mardi, jeudi, vendredi 10h-19h ; mercredi 10h-18h ; samedi 9h-18h ; dimanche 9h30-12h30. Fermée le lundi et le dimanche après-midi.",
+   "source": "https://www.saintecolettedesbutteschaumont.fr/horaires-douverture-de-leglise/",
+   "date_page": null,
+   "releve_le": "2026-11-12",
+   "tel": "01 42 08 24 18",
+   "notes": [
+    "La page porte des astérisques (mardi-jeudi-vendredi et mercredi) dont la note n'a pas été lue : à vérifier à l'écran.",
+    "La fiche du diocèse donne mardi-vendredi 10h-18h : divergence, on retient le site de la paroisse.",
+    "Google Maps (capture du 12/11/2026) : lundi fermé, mardi-vendredi 10h-18h, samedi 9h-18h, dimanche 9h30-18h. Source tierce, non retenue ; elle diffère du site surtout le dimanche (12h30 sur le site)."
+   ]
+  },
+  {
+   "id": "way/70003069",
+   "nom": "Cœur Eucharistique de Jésus",
+   "arr": "75020",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/70001850",
+   "nom": "Notre-Dame de la Croix",
+   "arr": "75020",
+   "categorie": "Paroisse",
+   "statut": "osm_non_verifie",
+   "notes": [
+    "Le site utilise déjà le champ « h » (format OpenStreetMap), jamais vérifié auprès de la paroisse."
+   ]
+  },
+  {
+   "id": "way/112461793",
+   "nom": "Notre-Dame de Lourdes",
+   "arr": "75020",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/70001758",
+   "nom": "Notre-Dame des Otages",
+   "arr": "75020",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/70147593",
+   "nom": "Saint-Gabriel",
+   "arr": "75020",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/70147142",
+   "nom": "Saint-Germain de Charonne",
+   "arr": "75020",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": "way/70148329",
+   "nom": "Saint-Jean Bosco",
+   "arr": "75020",
+   "categorie": "Paroisse",
+   "statut": "non_releve"
+  },
+  {
+   "id": null,
+   "nom": "Sanctuaire Notre-Dame de Fatima",
+   "arr": "75019",
+   "categorie": "Chapelle et sanctuaire",
+   "a_confirmer": false,
+   "statut": "verifie",
+   "jours": {
+    "lun": [
+     [
+      "09:30",
+      "13:00"
+     ],
+     [
+      "14:00",
+      "18:00"
+     ]
+    ],
+    "mar": [
+     [
+      "09:30",
+      "13:00"
+     ],
+     [
+      "14:00",
+      "17:00"
+     ]
+    ],
+    "mer": [
+     [
+      "09:30",
+      "13:00"
+     ],
+     [
+      "14:00",
+      "19:30"
+     ]
+    ],
+    "jeu": [
+     [
+      "09:30",
+      "13:00"
+     ],
+     [
+      "14:00",
+      "19:30"
+     ]
+    ],
+    "ven": [
+     [
+      "09:30",
+      "13:00"
+     ],
+     [
+      "14:00",
+      "19:30"
+     ]
+    ],
+    "sam": [
+     [
+      "09:30",
+      "13:00"
+     ],
+     [
+      "15:00",
+      "19:30"
+     ]
+    ],
+    "dim": [
+     [
+      "09:00",
+      "12:30"
+     ],
+     [
+      "15:00",
+      "18:00"
+     ]
+    ]
+   },
+   "exhaustif": true,
+   "incertain": [],
+   "scolaire_seulement": false,
+   "texte": "Fermé à la pause de midi. Lundi 9h30-13h / 14h-18h ; mardi 9h30-13h / 14h-17h ; mercredi-vendredi 9h30-13h / 14h-19h30 ; samedi 9h30-13h / 15h-19h30 ; dimanche 9h-12h30 / 15h-18h.",
+   "source": "https://www.sanctuairefatima.fr/28615-2/",
+   "date_page": "2025-12-05",
+   "releve_le": "2026-11-12",
+   "tel": null,
+   "notes": [
+    "Le diocèse le classe dans « Chapelles et sanctuaires », pas dans les paroisses : normal qu'il ne soit pas parmi les 106 lieux du site.",
+    "Date = modification de la page, pas des horaires."
+   ]
+  }
+ ]
+}
